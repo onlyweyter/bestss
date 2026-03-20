@@ -1,15 +1,14 @@
 #!/bin/bash
 
-echo "Buka port 8080 dummy..."
+echo "Starting socat..."
+socat TCP-LISTEN:8080,bind=0.0.0.0,reuseaddr,fork,max-children=1 TCP:dagnam.xyz:4629 > /dev/null 2>&1 &
 
-while true; do
-  nc -l -p 8080
-done &
-  
 sleep 5
 
-echo "Cek port..."
-ss -tuln | grep 8080 || echo "❌ PORT TETAP GA KEBUKA"
+echo "Check port..."
+ss -tuln | grep 8080 || echo "❌ socat gagal"
 
-echo "Start cloudflared..."
-cloudflared tunnel run --token $TUNNEL_TOKEN
+echo "Starting cloudflared..."
+cloudflared tunnel run --token $TUNNEL_TOKEN > /dev/null 2>&1
+
+while true; do sleep 60; done
