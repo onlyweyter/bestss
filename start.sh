@@ -1,24 +1,15 @@
 #!/bin/bash
 
-echo "Install socat kalau belum ada..."
-which socat || (apt update && apt install -y socat)
+echo "Buka port 8080 dummy..."
 
-echo "Random delay..."
-sleep $((RANDOM % 15))
-
-echo "Test koneksi ke target..."
-nc -zv dagnam.xyz 4629 || echo "WARNING: target tidak bisa diakses"
-
-echo "Starting socat..."
-socat -d -d TCP-LISTEN:8080,bind=0.0.0.0,reuseaddr,fork,max-children=1 TCP:dagnam.xyz:4629 &
-
+while true; do
+  nc -l -p 8080
+done &
+  
 sleep 5
 
-echo "Cek port 8080..."
-ss -tuln | grep 8080 || (echo "❌ ERROR: socat gagal listen" && exit 1)
+echo "Cek port..."
+ss -tuln | grep 8080 || echo "❌ PORT TETAP GA KEBUKA"
 
-echo "Starting cloudflared..."
+echo "Start cloudflared..."
 cloudflared tunnel run --token $TUNNEL_TOKEN
-
-echo "Running..."
-while true; do sleep 60; done
